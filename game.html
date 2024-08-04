@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost Adventure 1</title>
+    <style>
+        * {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        #player {
+            height: 180px;
+            width: 100px;
+            background: url('Game-player-standing-facing-south.png');
+            background-size: cover; /* Ensure the background covers the element */
+            background-repeat: no-repeat;
+            position: relative;
+            z-index: 1;
+        }
+        #bag {
+            height: 150px;
+            width: 110px;
+            background: url('bag.png') no-repeat;
+            background-size: 160%;
+            background-position-x: -33px;
+            background-position-y: -10px;
+            position: absolute;
+            z-index: -2;
+            left: 650px;
+        }
+        #bag-inside {
+            height: 500px;
+            width: 500px;
+            background-color: dimgray;
+            position: absolute;
+            left: 50%;
+            top: 50px;
+            transform: translateX(-50%);
+            display: none;
+            color: white;
+            z-index: 2;
+        }
+        .heading h3 {
+            font-size: 25px;
+            text-align: center;
+        }
+        #items {
+            display: flex;
+            position: absolute;
+            top: 60px;
+            left: 50px;
+        }
+        #food-item-one {
+            height: 50px;
+            width: 50px;
+            background: url(food.png);
+            background-size: cover;
+            position: relative;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #inventory {
+            display: flex;
+            gap: 5px;
+            position: absolute;
+            bottom: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+        }
+        .slot {
+            height: 60px;
+            width: 60px;
+            background: #333333;
+            border: 5px solid rgb(83, 83, 83);
+        }
+        .hand {
+            border: 5px solid white;
+        }
+        #health_bar {
+    height: 20px;
+    width: 200px; /* Adjust as needed */
+    background: red;
+    border-radius: 25px;
+    position: absolute;
+    bottom: 0;
+    left: 10px; /* Fixed position from the left */
+    border: 5px solid black;
+}
+
+#hunger {
+    height: 20px;
+    width: 200px;
+    background: rgb(255, 153, 0);
+    border-radius: 25px;
+    position: absolute;
+    bottom: 40px; /* Positioned above the health bar */
+    left: 10px; /* Fixed position from the left */
+    border: 5px solid black;
+}
+
+#energy {
+    height: 20px;
+    width: 200px;
+    background: rgb(0, 255, 30);
+    border-radius: 25px;
+    position: absolute;
+    bottom: 0;
+    right: 10px; /* Fixed position from the right */
+    border: 5px solid black;
+}
+
+#thirst {
+    height: 20px;
+    width: 200px;
+    background: rgb(0, 238, 255);
+    border-radius: 25px;
+    position: absolute;
+    bottom: 40px; /* Positioned above the health bar */
+    right: 10px; /* Fixed position from the right */
+    border: 5px solid black;
+}
+        body {
+            background: #4b9d0c;
+            overflow: hidden;
+        }
+        #stone {
+            height: 100px;
+            width: 100px;
+            background: url(stone.png);
+            background-size: 200%;
+            background-position-x: center;
+            background-position-y: center;
+            position: relative;
+            left: 60%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #respawn {
+            color: white;
+            padding: 15px;
+            width: 200px;
+            border: none;
+            outline: none;
+            border-radius: 10px;
+            background: #06777a;
+            text-align: center;
+            display: none;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+    <div id="player" onclick="updateHealth();"></div>
+    <div id="bag"></div>
+    <div id="bag-inside">
+        <div class="heading">
+            <h3>Bag</h3>
+        </div>
+        <div id="items">
+            <div id="food-item-one"></div>
+        </div>
+    </div>
+    <div id="inventory">
+        <div id="slot1" class="slot hand"></div>
+        <div id="slot2" class="slot"></div>
+        <div id="slot3" class="slot"></div>
+        <div id="slot4" class="slot"></div>
+        <div id="slot5" class="slot"></div>
+        <div id="slot6" class="slot"></div>
+        <div id="slot7" class="slot"></div>
+    </div>
+    <div id="stone"></div>
+    <div id="health_bar"></div>
+    <div id="hunger"></div>
+    <div id="energy"></div>
+    <div id="thirst"></div>
+    <div id="respawn">Respawn</div>
+    <h1 id="pause" style="display: none; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">Game Paused [Click p to unpause]</h1>
+    <script>
+        // Variables
+        const player = document.getElementById('player');
+        const bag = document.getElementById('bag');
+        const bag_content = document.getElementById('bag-inside');
+        const slot1 = document.getElementById('slot1');
+        const slot2 = document.getElementById('slot2');
+        const slot3 = document.getElementById('slot3');
+        const slot4 = document.getElementById('slot4');
+        const slot5 = document.getElementById('slot5');
+        const slot6 = document.getElementById('slot6');
+        const slot7 = document.getElementById('slot7');
+        const hunger_bar = document.getElementById('hunger');
+        const health_bar = document.getElementById('health_bar');
+        const energy_bar = document.getElementById('energy');
+        const thirst_bar = document.getElementById('thirst');
+        const foodDiv = document.getElementById('food-item-one');
+        const stone = document.getElementById('stone');
+        const respawn = document.getElementById('respawn')
+
+        let x = 0;
+        let y = 0;
+        let slot_no = 1;
+        let food_ = false;
+        let health = 100;
+        let hunger = 100;
+        let energy = 100;
+        let thirst = 100;
+        let bagopened = false;
+        let dead = false;
+        let pause = false;
+        let isslot1filled = false;
+        let isslot2filled = false;
+        let isslot3filled = false;
+        let isslot4filled = false;
+        let isslot5filled = false;
+        let isslot6filled = false;
+        let isslot7filled = false;
+        let spawnx = 0;
+        let spawny = 0;
+        // Event Listeners
+
+        player.addEventListener('click', function() {
+            health -= 5;
+        });
+
+        respawn.addEventListener('click', function() {
+            health = 100;
+            hunger = 100;
+            energy = 100;
+            thirst = 100;
+            dead = false;
+            x = spawnx;
+            y = spawny;
+            player.style.background = 'url(Game-player-standing-facing-south.png)';
+            player.style.backgroundSize = 'cover';
+            player.style.width = '100px';
+            player.style.height = '180px';
+            respawn.style.display = 'none';
+            player.style.transform = `translate(${x}px, ${y}px)`;
+        });
+
+        foodDiv.addEventListener('click', () => {
+            if (bagopened && !pause && !dead) {
+                slot1.appendChild(foodDiv);
+                isslot1filled = true;
+                food_ = true;
+            }
+        });
+
+        slot1.addEventListener('click', () => {
+            if (bagopened && !pause && !dead) {
+                document.getElementById('items').appendChild(foodDiv);
+                food_ = false;
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if(event.key === 'p') {
+                pause = !pause;
+                document.getElementById('pause').style.display = pause ? 'block' : 'none';
+            }
+            if(!dead && !pause) {
+                if (event.key === 'ArrowUp' || event.key === 'w'  || event.key === 'W') {
+                player.style.background = 'url(Game-player-standing-facing-north.png)';
+                player.style.backgroundSize = 'cover';
+                player.style.width = '100px';
+                dir = 'north';
+                y -= 10;
+            }
+            if (event.key === 'ArrowDown' || event.key === 's'  || event.key === 'S') {
+                player.style.background = 'url(Game-player-standing-facing-south.png)';
+                player.style.backgroundSize = 'cover';
+                player.style.width = '100px';
+                dir = 'south';
+                y += 10;
+            }
+            if (event.key === 'ArrowLeft' || event.key === 'a' || event.key === 'A') {
+                player.style.background = 'url(Game-player-standing-facing-west.png)';
+                player.style.backgroundSize = 'cover';
+                player.style.width = '85px';
+                dir = 'west';
+                x -= 10;
+            }
+            if (event.key === 'ArrowRight' || event.key === 'd' || event.key === 'D') {
+                player.style.background = 'url(Game-player-standing-facing-east.png)';
+                player.style.backgroundSize = 'cover';
+                player.style.width = '85px';
+                dir = 'east';
+                x += 10;
+                
+            }
+            if (event.key === 'e' && slot_no === 1 && food_ && hunger < 100) {
+                foodDiv.remove();
+                hunger += 10; // Example hunger increase
+                updateHunger();
+                if (hunger > 100) hunger = 100;
+                food_ = false;
+            }
+            player.style.transform = `translate(${x}px, ${y}px)`;
+
+            if (event.key === '1') {
+                slot_no = 1;
+                setInventory();
+            }
+            if (event.key === '2') {
+                slot_no = 2;
+                setInventory();
+            }
+            if (event.key === '3') {
+                slot_no = 3;
+                setInventory();
+            }
+            if (event.key === '4') {
+                slot_no = 4;
+                setInventory();
+            }
+            if (event.key === '5') {
+                slot_no = 5;
+                setInventory();
+            }
+            if (event.key === '6') {
+                slot_no = 6;
+                setInventory();
+            }
+            if (event.key === '7') {
+                slot_no = '7';
+                setInventory();
+            }
+            if (event.key === 'o') {
+                if (areTouching(player, bag)) {
+                    bagopened = !bagopened;
+                    bag_content.style.display = bagopened ? 'block' : 'none';
+                }
+            }
+            if(!areTouching(player, bag) && bagopened) {
+                    bagopened = false;
+                    bag_content.style.display = 'none';
+                }
+            }
+        });
+
+        // Functions
+        function areTouching(element1, element2) {
+            const rect1 = element1.getBoundingClientRect();
+            const rect2 = element2.getBoundingClientRect();
+            return !(rect1.right < rect2.left || 
+                    rect1.left > rect2.right || 
+                    rect1.bottom < rect2.top || 
+                    rect1.top > rect2.bottom);
+        }
+
+        function setInventory() {
+            // Reset all slot borders
+            const slots = document.querySelectorAll('.slot');
+            slots.forEach(slot => slot.classList.remove('hand'));
+            // Add 'hand' class to the selected slot
+            document.getElementById('slot' + slot_no).classList.add('hand');
+        }
+
+        function updateHunger() {
+            hunger_bar.style.width = (hunger * 2) + 'px';
+        }
+
+        function updateHealth() {
+            health_bar.style.width = (health * 2) + 'px'; // Example width calculation
+        }
+
+        function updateEnergy() {
+            energy_bar.style.width = (energy * 2) + 'px'; // Example width calculation
+        }
+
+        function updateThirst() {
+            thirst_bar.style.width = (thirst * 2) + 'px'; // Example width calculation
+        }
+        function simulateTime() {
+                        // Simulate decreasing hunger, thirst, health, and energy over time
+                        hunger -= 0.1;
+                        thirst -= 0.15;
+                        energy -= 0.05;
+
+                        if (hunger < 0) hunger = 0;
+                        if (thirst < 0) thirst = 0;
+                        if (energy < 0) energy = 0;
+
+                        // Adjust health based on hunger and thirst
+                        if (hunger <= 1 || thirst <= 1) {
+                            health -= 1;
+                        }
+
+                        if (health < 0) {
+                            health = 0;
+                            dead = true;
+                            player.style.background = 'url(Game-player-lying-dead-north.png)';
+                            player.style.backgroundSize = 'cover';
+                            player.style.width = '120px';
+                            setTimeout(function() {
+                                respawn.style.display = 'block';
+                            }, 2000)
+                        }
+
+                        if(health <= 99 && hunger > 0) {
+                            health += 0.2;
+                            hunger -= 0.2;
+                        }
+
+                        // Update bars
+                        updateHunger();
+                        updateHealth();
+                        updateEnergy();
+                        updateThirst();
+        }
+        function setup() {
+            updateHunger();
+            updateHealth();
+            updateEnergy();
+            updateThirst();
+        }
+
+        document.addEventListener('DOMContentLoaded', setup());
+        setInterval(function(){
+             if(!dead && !pause) 
+             {simulateTime()}
+            }, 1000);
+        setInterval(updateHunger, updateHealth, updateEnergy, updateThirst, 50);
+    </script>
+</body>
+</html>

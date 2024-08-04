@@ -3,33 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Lost Adventure 1</title>
+    <style>
+        body {
+            height: 680px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #6fd516;
+        }
+        .btn {
+            color: white;
+            padding: 15px;
+            width: 200px;
+            border: none;
+            outline: none;
+            border-radius: 10px;
+            background: #06777a;
+        }
+        a {
+            color: white;
+            text-decoration: none;
+        }
+
+        #guide {
+            position: absolute;
+            top: 560px;
+            opacity: 0%;
+            transition: 0.3s;
+        }
+        #updates {
+            position: absolute;
+            top: 550px;
+            opacity: 0%;
+            transition: 0.3s;
+        }
+        ul {
+            list-style: none;
+        }
+    </style>
 </head>
 <body>
-    <div id="player"></div>
-    <div id="bag"></div>
-    <div id="bag-inside">
-        <div class="heading">
-            <h3>Bag</h3>
-        </div>
-        <div id="items">
-          <div id="food-item-one"></div>
-        </div>
+    <div class="conatiner">
+        <h1 style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">Lost Adventure Version 1.1</h1>
+        <a href="game.html"><button class="btn" id="play">Play</button></a>
+        <br>
+        <br>
+        <button class="btn" id="instructions" onmouseover="showDescription()" onmouseleave="hideDescription()">Instructions</button>
+        <br>
+        <br>
+        <button class="btn" id="news" onmouseover="showUpdates()" onmouseleave="hideUpdates()">Updates</button>
     </div>
-    <div id="inventory">
-        <div id="slot0" class="slot hand"></div>
-        <div id="slot1" class="slot"></div>
-        <div id="slot2" class="slot"></div>
-        <div id="slot3" class="slot"></div>
-        <div id="slot4" class="slot"></div>
-        <div id="slot5" class="slot"></div>
-        <div id="slot6" class="slot"></div>
+    <div id="guide">
+        <ul>
+            <li>Use W, A, S, D or Arrow Keys to move.</li>
+            <li>Press O to open or close bag/chest.</li>
+            <li>Press E to eat.</li>
+            <li>Use number keys to change slot. (1-7)</li>
+            <li>Click p to pause and unpause.</li>
+        </ul>
     </div>
-    <div id="health"></div>
-    <div id="hunger"></div>
-    <div id="thirst"></div>
-    <div id="energy"></div>
-    <script src="script.js"></script>
+    <div id="updates">
+        <ul>
+            <li>Home page added.</li>
+            <li>Eat food function added.</li>
+            <li>Game pause function added.</li>
+            <li>Some errors fixed.</li>
+            <li>Tree added.</li>
+            <li>Water added.</li>
+            <li>Wood added.</li>
+        </ul>
+    </div>
+    <script>
+        function showDescription() {
+            const descriptionDiv = document.querySelector('#guide');
+            descriptionDiv.style.opacity = '100%';
+        }
+        function hideDescription() {
+            const descriptionDiv = document.querySelector('#guide');
+            descriptionDiv.style.opacity = '0%';
+        }
+        function showUpdates() {
+            const descriptionDiv = document.querySelector('#updates');
+            descriptionDiv.style.opacity = '100%';
+        }
+        function hideUpdates() {
+            const descriptionDiv = document.querySelector('#updates');
+            descriptionDiv.style.opacity = '0%';
+        }
+    </script>
 </body>
 </html>
